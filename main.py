@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 #### Записать полученный список групп в файл
 
 
-def which_user():
+def who_is():
     """
     Задаем пользователя для работы
     """
@@ -43,17 +43,20 @@ def what_are_user_groups(client_id):
         'https://api.vk.com/method/groups.get',
         params
     )
-    print('?'.join(('https://api.vk.com/method/groups.get', urlencode(params))))
+    # print('?'.join(('https://api.vk.com/method/groups.get', urlencode(params))))
     response_json = response.json()
     usergroups = set()
     print(f"\nИщем группы у пользователя {client_id}: ")
-    for group in response_json['response']['items']:
-        print(".", end="")
-        usergroups.add(group['id'])
-    return usergroups
+    try:
+        for group in response_json['response']['items']:
+            print(".", end="")
+            usergroups.add(group['id'])
+        return usergroups
+    except:
+        return usergroups
 
 
-def what_are_my_friend(client_id):
+def what_are_my_friends(client_id):
     """
     Получаем список пользователей
     """
@@ -91,11 +94,11 @@ def match_users_groups(original_group, original_friends):
 
 
 TOKEN = '73eaea320bdc0d3299faa475c196cfea1c4df9da4c6d291633f9fe8f83c08c4de2a3abf89fbc3ed8a44e1'
-original_client = which_user()
+original_client = who_is()
 input("\nЭтап 1. Определили пользователя. Теперь определим его группы. Press any key to continue:")
 original_group = what_are_user_groups(original_client)
 input("\nЭтап 2. Определили его группы. Теперь будем определять его друзей. Press any key to continue:")
-original_friends = what_are_my_friend(original_client)
+original_friends = what_are_my_friends(original_client)
 input("\nЭтап 3. Определили его друзей. Теперь будем сверять группы. Press any key to continue:")
 final_set = match_users_groups(original_group, original_friends)
 pprint(final_set)

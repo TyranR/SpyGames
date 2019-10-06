@@ -36,7 +36,6 @@ def what_are_user_groups(client_id):
         'v': 5.101,
         'user_id': client_id,
         'extended': 1,
-        'fields': "name,gid,members_count",
         'count': 1000
     }
     response = requests.get(
@@ -93,15 +92,47 @@ def match_users_groups(original_group, original_friends):
     return final_groups
 
 
+def detail_groups(set_of_groups):
+    """
+    Детализируем группы и записываем в JSON
+    """
+    for group in set_of_groups:
+        params = {
+            'access_token': TOKEN,
+            'v': 5.101,
+            'group_id': group,
+            'fields': "name,members_count"
+        }
+        response = requests.get(
+            'https://api.vk.com/method/groups.getById',
+            params
+        )
+        # print('?'.join(('https://api.vk.com/method/groups.getById', urlencode(params))))
+        response_json = response.json()
+        print(response_json)
+        # with open ("result.txt", "w") as file:
+        #     file.write(response_json)
+        #     file.write("\n")
+
+    return response_json
+
+
+def main():
+    original_client = who_is()
+    print("\nЭтап 1. Определили пользователя. Теперь определим его группы. Press any key to continue:")
+    original_group = what_are_user_groups(original_client)
+    print("\nЭтап 2. Определили его группы. Теперь будем определять его друзей. Press any key to continue:")
+    original_friends = what_are_my_friends(original_client)
+    print("\nЭтап 3. Определили его друзей. Теперь будем сверять группы. Press any key to continue:")
+    final_set = match_users_groups(original_group, original_friends)
+    input("\nЭтап 4. Получаем подробности групп и записываем в файл. Press any key to continue:")
+    detail_json = detail_groups(final_set)
+    pprint(detail_json)
+
+
 TOKEN = '73eaea320bdc0d3299faa475c196cfea1c4df9da4c6d291633f9fe8f83c08c4de2a3abf89fbc3ed8a44e1'
-original_client = who_is()
-input("\nЭтап 1. Определили пользователя. Теперь определим его группы. Press any key to continue:")
-original_group = what_are_user_groups(original_client)
-input("\nЭтап 2. Определили его группы. Теперь будем определять его друзей. Press any key to continue:")
-original_friends = what_are_my_friends(original_client)
-input("\nЭтап 3. Определили его друзей. Теперь будем сверять группы. Press any key to continue:")
-final_set = match_users_groups(original_group, original_friends)
-pprint(final_set)
+main()
+
 
 
 

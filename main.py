@@ -107,7 +107,7 @@ def match_users_groups(original_group, original_friends):
 
 def detail_groups(set_of_groups):
     """
-    Детализируем группы и записываем в JSON
+    Детализируем группы
     """
     final_list = []
     for group in set_of_groups:
@@ -131,8 +131,6 @@ def detail_groups(set_of_groups):
             final_dict = {}
             final_dict = {'name': grp['name'], 'gid': grp['id'], 'members_count': grp['members_count']}
             final_list.append(final_dict.copy())
-    with open('groups.json', mode='w') as file:
-        json.dump(final_list, file, ensure_ascii=False, indent=2)
     return final_list
 
 def main():
@@ -146,6 +144,9 @@ def main():
     print("\nЭтап 4. Получаем подробности групп и записываем в файл. Press any key to continue:")
     detail_json = detail_groups(final_set)
     pprint(detail_json)
+    with open('groups.json', mode='w') as file:
+        json.dump(detail_json, file, ensure_ascii=False, indent=2)
+
 
 TOKEN = '73eaea320bdc0d3299faa475c196cfea1c4df9da4c6d291633f9fe8f83c08c4de2a3abf89fbc3ed8a44e1'
 main()

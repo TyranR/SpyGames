@@ -121,7 +121,6 @@ def detail_groups(set_of_groups):
             'https://api.vk.com/method/groups.getById',
             params
         )
-        print('?'.join(('https://api.vk.com/method/groups.getById', urlencode(params))))
         response_json = response.json()
         if response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
             print(f"\nПридётся подождать 3 секунды, потому что ошибка {response_json['error']['error_msg']}")

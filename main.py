@@ -109,7 +109,7 @@ def detail_groups(set_of_groups):
     """
     Детализируем группы и записываем в JSON
     """
-    final = {}
+    final_list = []
     for group in set_of_groups:
         params = {
             'access_token': TOKEN,
@@ -127,17 +127,13 @@ def detail_groups(set_of_groups):
             print(f"\nПридётся подождать 3 секунды, потому что ошибка {response_json['error']['error_msg']}")
             time.sleep(3)
             response_json = response.json()
-        only_response = {}
-        only_response = response_json['response']
-        print(type(only_response))
-        pprint(only_response)
-        final = {}
-        final = {'name': only_response('name'), 'gid': only_response['id'], \
-                     'members_count': only_response['members_count']}
-        # pprint(need_only)
-        # # with open('groups.json', mode='a', encoding=utf-8) as file:
-        #     json.dump(response_json, file, ensure_ascii=False, indent=2)
-    return final
+        for grp in response_json['response']:
+            final_dict = {}
+            final_dict = {'name': grp['name'], 'gid': grp['id'], 'members_count': grp['members_count']}
+            final_list.append(final_dict.copy())
+    with open('groups.json', mode='w') as file:
+        json.dump(final_list, file, ensure_ascii=False, indent=2)
+    return final_list
 
 def main():
     original_client = who_is()

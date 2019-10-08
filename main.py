@@ -1,5 +1,6 @@
 from pprint import pprint
 import requests
+import json
 import time
 from urllib.parse import urlencode
 #### Получить userid
@@ -42,9 +43,17 @@ def what_are_user_groups(client_id):
         'https://api.vk.com/method/groups.get',
         params
     )
-    # print('?'.join(('https://api.vk.com/method/groups.get', urlencode(params))))
     response_json = response.json()
     usergroups = set()
+    if response_json.get('error') and (response_json['error']['error_msg'] == 'This profile is private' or \
+                                       response_json['error']['error_msg'] == 'User was deleted or banned'):
+        print(f"\nНе можем посмотреть группы у друга {client_id} "
+              f"из-за ошибки {response_json['error']['error_msg']}")
+        return usergroups
+    elif response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
+        print(f"\nПридётся подождать 3 секунды, из-за ошибки {response_json['error']['error_msg'] }")
+        time.sleep(3)
+        response_json = response.json()
     print(f"\nИщем группы у пользователя {client_id}: ")
     try:
         for group in response_json['response']['items']:
@@ -70,6 +79,10 @@ def what_are_my_friends(client_id):
     )
     # print('?'.join(('https://api.vk.com/method/friends.get', urlencode(params))))
     response_json = response.json()
+    if response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
+        print(f"\nПридётся подождать 3 секунды, потому что ошибка {response_json['error']['error_msg']}")
+        time.sleep(3)
+        response_json = response.json()
     friends = list()
     print(f"\nИщем друзей у пользователя {client_id}: ")
     for friend in response_json['response']['items']:
@@ -96,6 +109,7 @@ def detail_groups(set_of_groups):
     """
     Детализируем группы и записываем в JSON
     """
+    final = {}
     for group in set_of_groups:
         params = {
             'access_token': TOKEN,
@@ -107,15 +121,23 @@ def detail_groups(set_of_groups):
             'https://api.vk.com/method/groups.getById',
             params
         )
-        # print('?'.join(('https://api.vk.com/method/groups.getById', urlencode(params))))
+        print('?'.join(('https://api.vk.com/method/groups.getById', urlencode(params))))
         response_json = response.json()
-        print(response_json)
-        # with open ("result.txt", "w") as file:
-        #     file.write(response_json)
-        #     file.write("\n")
-
-    return response_json
-
+        if response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
+            print(f"\nПридётся подождать 3 секунды, потому что ошибка {response_json['error']['error_msg']}")
+            time.sleep(3)
+            response_json = response.json()
+        only_response = {}
+        only_response = response_json['response']
+        print(type(only_response))
+        pprint(only_response)
+        final = {}
+        final = {'name': only_response('name'), 'gid': only_response['id'], \
+                     'members_count': only_response['members_count']}
+        # pprint(need_only)
+        # # with open('groups.json', mode='a', encoding=utf-8) as file:
+        #     json.dump(response_json, file, ensure_ascii=False, indent=2)
+    return final
 
 def main():
     original_client = who_is()
@@ -125,10 +147,9 @@ def main():
     original_friends = what_are_my_friends(original_client)
     print("\nЭтап 3. Определили его друзей. Теперь будем сверять группы. Press any key to continue:")
     final_set = match_users_groups(original_group, original_friends)
-    input("\nЭтап 4. Получаем подробности групп и записываем в файл. Press any key to continue:")
+    print("\nЭтап 4. Получаем подробности групп и записываем в файл. Press any key to continue:")
     detail_json = detail_groups(final_set)
     pprint(detail_json)
-
 
 TOKEN = '73eaea320bdc0d3299faa475c196cfea1c4df9da4c6d291633f9fe8f83c08c4de2a3abf89fbc3ed8a44e1'
 main()

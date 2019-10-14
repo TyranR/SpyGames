@@ -25,7 +25,28 @@ def who_is():
             return 171691064
         else:
             print(f"Будет использован пользователь {client_id}")
-            return client_id
+            user_id = if_user_id_is_not_int(client_id)
+            return int(user_id)
+
+
+def if_user_id_is_not_int(client_id):
+    """
+    Если пользователь введен не по ID, то получаем его ID
+    """
+    params = {
+        'access_token': TOKEN,
+        'v': 5.101,
+        'user_ids': client_id,
+    }
+    response = requests.get(
+        'https://api.vk.com/method/users.get',
+        params
+    )
+    response_json = response.json()
+    user_id = response_json['response'][0]['id']
+
+    print(f"Печатаем результат превращения - {user_id}")
+    return int(user_id)
 
 
 def what_are_user_groups(client_id):
@@ -122,7 +143,7 @@ def detail_groups(set_of_groups):
             params
         )
         response_json = response.json()
-        if response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
+        while response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
             print(f"\nПридётся подождать 3 секунды, потому что ошибка {response_json['error']['error_msg']}")
             time.sleep(3)
             response_json = response.json()

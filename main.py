@@ -72,8 +72,8 @@ def what_are_user_groups(client_id):
               f"из-за ошибки {response_json['error']['error_msg']}")
         return usergroups
     elif response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
-        print(f"\nПридётся подождать 3 секунды, из-за ошибки {response_json['error']['error_msg'] }")
-        time.sleep(3)
+        print(f"\nПридётся подождать 1 секунду, из-за ошибки {response_json['error']['error_msg'] }")
+        time.sleep(1)
         response_json = response.json()
     print(f"\nИщем группы у пользователя {client_id}: ")
     try:
@@ -98,11 +98,10 @@ def what_are_my_friends(client_id):
         'https://api.vk.com/method/friends.get',
         params
     )
-    # print('?'.join(('https://api.vk.com/method/friends.get', urlencode(params))))
     response_json = response.json()
     if response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
-        print(f"\nПридётся подождать 3 секунды, потому что ошибка {response_json['error']['error_msg']}")
-        time.sleep(3)
+        print(f"\nПридётся подождать 1 секунду, потому что ошибка {response_json['error']['error_msg']}")
+        time.sleep(1)
         response_json = response.json()
     friends = list()
     print(f"\nИщем друзей у пользователя {client_id}: ")
@@ -130,6 +129,7 @@ def detail_groups(set_of_groups):
     """
     Детализируем группы
     """
+    print(f"Всего групп получилось - {set_of_groups}")
     final_list = []
     for group in set_of_groups:
         params = {
@@ -143,7 +143,7 @@ def detail_groups(set_of_groups):
             params
         )
         response_json = response.json()
-        while response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
+        if response_json.get('error') and (response_json['error']['error_msg'] == 'Too many requests per second'):
             print(f"\nПридётся подождать 3 секунды, потому что ошибка {response_json['error']['error_msg']}")
             time.sleep(3)
             response_json = response.json()
